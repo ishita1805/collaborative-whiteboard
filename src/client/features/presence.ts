@@ -24,6 +24,7 @@ export function initPresence(
   userName: string,
   userColor: string,
   userColorMap: Map<string, string>,
+  onColorUpdated?: () => void,
 ): () => void {
   const cleanups: Array<() => void> = [];
   const remotePresenceIds = new Map<string, string>();
@@ -99,6 +100,7 @@ export function initPresence(
           // Store the CollabKit-assigned color so user tiles can match cursor color
           if (state.color) {
             userColorMap.set(remoteUserId, state.color);
+            onColorUpdated?.();
           }
 
           const presenceId =

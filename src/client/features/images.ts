@@ -1,4 +1,5 @@
 import type { TLAssetStore } from 'tldraw';
+import { COLLABKIT_SERVER_URL } from '../collabkit';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CollabKitClient = any;
@@ -22,7 +23,14 @@ export function createAssetStore(client: CollabKitClient): TLAssetStore {
     },
 
     resolve(asset) {
-      return asset.props.src ?? '';
+      const src = asset.props.src ?? '';
+      // CollabKit may return relative storage paths (e.g. /v1/accounts/…).
+      // Resolve them against the CollabKit server so the browser doesn't
+      // fetch from the Vite dev-server origin by mistake.
+      if (src.startsWith('/')) {
+        return `${COLLABKIT_SERVER_URL}${src}`;
+      }
+      return src;
     },
   };
 }

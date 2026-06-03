@@ -38,7 +38,7 @@ import {
   PageInfo,
 } from "./features/pagination";
 import { initPresence } from "./features/presence";
-import { initUsers, OnlineUser } from "./features/users";
+import { initUsers, buildOnlineUsers, OnlineUser } from "./features/users";
 import { initFollow } from "./features/follow";
 import { applyAutoScale } from "./features/auto-scale";
 import { enforceCameraBounds } from "./features/bounded-canvas";
@@ -322,6 +322,11 @@ const Whiteboard = ({ client }: WhiteboardProps) => {
         userName,
         userColorRef.current,
         userColorMapRef.current,
+        () => {
+          // When a remote user's cursor color arrives, rebuild the online
+          // users map so the header tiles reflect the same colour.
+          setOnlineUsers(buildOnlineUsers(client, userColorMapRef.current));
+        },
       );
       cleanupsRef.current.push(presenceCleanup);
     } catch (err) {

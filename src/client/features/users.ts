@@ -13,6 +13,30 @@ export interface OnlineUser {
 }
 
 /**
+ * Build the current online users map from CollabKit state,
+ * attaching cursor colors from the shared color map.
+ */
+export function buildOnlineUsers(
+  client: CollabKitClient,
+  userColorMap: Map<string, string>,
+): Map<string, OnlineUser> {
+  const onlineUsers = new Map<string, OnlineUser>();
+  const online = client.users?.online;
+  if (online && typeof online[Symbol.iterator] === 'function') {
+    for (const [id, user] of online) {
+      onlineUsers.set(id, {
+        id: user.id,
+        name: user.name,
+        profilePicture: user.profile_picture,
+        status: user.status,
+        color: userColorMap.get(id),
+      });
+    }
+  }
+  return onlineUsers;
+}
+
+/**
  * Initialize user lifecycle management.
  * Returns a cleanup function.
  */
@@ -27,20 +51,7 @@ export function initUsers(
 ): () => void {
   const notifyChange = () => {
     try {
-      const onlineUsers = new Map<string, OnlineUser>();
-      const online = client.users?.online;
-      if (online && typeof online[Symbol.iterator] === 'function') {
-        for (const [id, user] of online) {
-          onlineUsers.set(id, {
-            id: user.id,
-            name: user.name,
-            profilePicture: user.profile_picture,
-            status: user.status,
-            color: userColorMap.get(id),
-          });
-        }
-      }
-      callbacks.onUsersChanged(onlineUsers);
+      callbacks.onUsersChanged(buildOnlineUsers(client, userColorMap));
     } catch (err) {
       console.error('[users] Failed to read online users:', err);
       callbacks.onUsersChanged(new Map());
