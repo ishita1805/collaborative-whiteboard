@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import CollabKitClient from "@collab-kit/client";
 
 import { useWhiteboard } from "./context";
-import { usePluginSDK } from "./connectors/plugin-sdk";
 import { authenticate, storeSchemas, COLLABKIT_SERVER_URL } from "./collabkit";
 import Whiteboard from "./Whiteboard";
 
@@ -14,7 +13,6 @@ type CollabKitClientType = any;
 
 const App = () => {
   const { config, setError } = useWhiteboard();
-  const { pluginUser, pluginRoomId } = usePluginSDK();
   const [status, setStatus] = useState<"connecting" | "ready" | "error">(
     "connecting",
   );
@@ -33,23 +31,13 @@ const App = () => {
         let participantName: string;
         let participantProfilePicture: string | undefined;
 
-        // Plugin SDK connector
-        if (pluginUser && pluginRoomId) {
-          // Plugin-sdk mode: use connector-provided user/room info
-          roomCustomId = pluginRoomId;
-          roomName = "Whiteboard";
-          participantCustomId = pluginUser.customId;
-          participantName = pluginUser.name;
-          participantProfilePicture = pluginUser.profilePicture;
-        } else {
-          // Standalone mode: use URL params
-          const params = new URLSearchParams(window.location.search);
-          roomCustomId = params.get("roomId") || "default-room";
-          roomName = params.get("roomName") || "Whiteboard";
-          participantCustomId = params.get("userId") || `user-${Date.now()}`;
-          participantName = params.get("userName") || "Participant";
-          participantProfilePicture = params.get("profilePicture") || undefined;
-        }
+        // Standalone mode: use URL params
+        const params = new URLSearchParams(window.location.search);
+        roomCustomId = params.get("roomId") || "default-room";
+        roomName = params.get("roomName") || "Whiteboard";
+        participantCustomId = params.get("userId") || `user-${Date.now()}`;
+        participantName = params.get("userName") || "Participant";
+        participantProfilePicture = params.get("profilePicture") || undefined;
 
         const serverUrl = window.location.origin;
 

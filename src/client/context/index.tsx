@@ -4,7 +4,6 @@ import { defaultConfig } from '../config';
 
 interface WhiteboardContextValue {
   config: WhiteboardConfig;
-  setConfig: (config: WhiteboardConfig) => void;
   error: string;
   setError: (error: string) => void;
 }
@@ -18,11 +17,11 @@ export function useWhiteboard(): WhiteboardContextValue {
 }
 
 export function WhiteboardProvider({ children }: { children: React.ReactNode }) {
-  const [config, setConfig] = useState<WhiteboardConfig>(defaultConfig);
+  const config = defaultConfig;
   const [error, setError] = useState<string>('');
 
   return (
-    <WhiteboardContext.Provider value={{ config, setConfig, error, setError }}>
+    <WhiteboardContext.Provider value={{ config, error, setError }}>
       {children}
     </WhiteboardContext.Provider>
   );

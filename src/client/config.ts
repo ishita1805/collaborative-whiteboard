@@ -26,9 +26,6 @@ export interface WhiteboardConfig {
   settings: {
     zen: boolean;
     theme: 'dark' | 'light';
-    // Plugin SDK Connector
-    exportMode: 'pdf' | 'jpg';
-    showHeader: boolean;
   };
 }
 
@@ -45,9 +42,6 @@ export const defaultConfig: WhiteboardConfig = {
   },
   settings: {
     zen: false,
-    theme: 'light',
-    // Plugin SDK Connector
-    exportMode: 'jpg',
-    showHeader: true,
+    theme: 'light'
   },
 };

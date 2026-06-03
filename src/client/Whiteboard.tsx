@@ -23,9 +23,9 @@ import type { TLComponents } from "tldraw";
 import "tldraw/tldraw.css";
 
 import { useWhiteboard } from "./context";
-import { usePluginSDK } from "./connectors/plugin-sdk";
 import type { WhiteboardConfig } from "./config";
-import { initializeCanvas, applyTheme } from "./features/canvas";
+import { initializeCanvas } from "./features/canvas";
+import { createAssetStore } from "./features/images";
 import {
   loadExistingRecords,
   attachOutboundSync,
@@ -124,7 +124,7 @@ function CustomMenuPanel() {
   return (
     <div className="tlui-menu-zone">
       <div className="header-elements">
-        {ctx && !ctx.syncing && ctx.config.settings.showHeader && (
+        {ctx && !ctx.syncing && (
           <>
             <Settings
               config={ctx.config}
@@ -166,13 +166,13 @@ interface WhiteboardProps {
 
 const Whiteboard = ({ client }: WhiteboardProps) => {
   const { config, setError } = useWhiteboard();
-  const { followUserId } = usePluginSDK();
 
   // Stable tldraw store -- created once, never changes
   const [store] = useState(() =>
     createTLStore({
       shapeUtils: defaultShapeUtils,
       bindingUtils: defaultBindingUtils,
+      assets: createAssetStore(client),
     }),
   );
 
@@ -201,9 +201,6 @@ const Whiteboard = ({ client }: WhiteboardProps) => {
   const followingRef = useRef<string | null>(following);
   const autoScaleRef = useRef(autoScale);
 
-  // TODO: Asset store for image uploads -- requires editor-based registration when using custom store
-  // Image upload via CollabKit storage will be configured in a future update
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -221,51 +218,6 @@ const Whiteboard = ({ client }: WhiteboardProps) => {
     autoScaleRef.current = autoScale;
   }, [autoScale]);
 
-  // Reactive config: re-apply settings when config changes
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    // Re-apply role
-    editor.updateInstanceState({ isReadonly: config.role === "viewer" });
-
-    // Re-apply theme
-    applyTheme(editor, config.settings.theme);
-
-    // Re-apply auto-scale
-    setAutoScale(config.canvas.autoScale);
-  }, [config]);
-
-  // Plugin SDK Connector - Follow users when parent sends a user id
-  useEffect(() => {
-    if (!followUserId || !followControlsRef.current) return;
-    // Only trigger if we're not already following someone
-    if (followingRef.current) return;
-
-    const targetUser = client.users?.all?.get(followUserId);
-    if (targetUser?.status === "online") {
-      followControlsRef.current.follow(followUserId).catch((err: unknown) => {
-        console.error("[whiteboard] Late auto-follow failed:", err);
-      });
-    } else {
-      // Wait for user to join
-      const onUserJoined = (user: { id: string }) => {
-        if (user.id === followUserId) {
-          followControlsRef.current
-            ?.follow(followUserId)
-            .catch((err: unknown) => {
-              console.error("[whiteboard] Late auto-follow failed:", err);
-            });
-          client.users.off("userJoined", onUserJoined);
-        }
-      };
-      client.users?.on("userJoined", onUserJoined);
-      return () => {
-        client.users?.off("userJoined", onUserJoined);
-      };
-    }
-  }, [followUserId, client]);
-
   /**
    * Phase 2: Called when tldraw editor mounts.
    * By this point, CollabKit is already connected and joined (guaranteed by App.tsx).
@@ -275,7 +227,6 @@ const Whiteboard = ({ client }: WhiteboardProps) => {
 
     // Apply config-driven settings
     initializeCanvas(editor, config);
-    applyTheme(editor, config.settings.theme);
 
     // Start async collaboration setup
     setupCollaboration(editor).catch((err) => {
@@ -416,29 +367,6 @@ const Whiteboard = ({ client }: WhiteboardProps) => {
           followSystem.restoreFollow(targetId);
         }
       }
-
-      // Plugin SDK Connector - Auto-follow from connector config (e.g. parent sent follow userId)
-      if (followUserId) {
-        const targetUser = client.users.all.get(followUserId);
-        if (targetUser?.status === "online") {
-          // Target user is already online — follow immediately
-          await followSystem.follow(followUserId);
-        } else {
-          // Target user hasn't joined yet — wait for them
-          const onUserJoined = (user: { id: string }) => {
-            if (user.id === followUserId) {
-              followSystem.follow(followUserId).catch((err: unknown) => {
-                console.error("[whiteboard] Auto-follow failed:", err);
-              });
-              client.users.off("userJoined", onUserJoined);
-            }
-          };
-          client.users.on("userJoined", onUserJoined);
-          cleanupsRef.current.push(() =>
-            client.users.off("userJoined", onUserJoined),
-          );
-        }
-      }
     } catch (err) {
       console.error("[whiteboard] Follow setup failed:", err);
     }
@@ -519,6 +447,7 @@ const Whiteboard = ({ client }: WhiteboardProps) => {
             onMount={handleMount}
             components={tldrawComponents}
             autoFocus
+            colorScheme={isDark ? "dark" : "light"}
           />
         </div>
       </HeaderContext.Provider>

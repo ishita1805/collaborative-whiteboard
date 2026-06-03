@@ -23,15 +23,3 @@ export function initializeCanvas(editor: Editor, config: WhiteboardConfig): void
     editor.setCamera({ ...editor.getCamera(), z: 1 });
   }
 }
-
-/**
- * Apply theme setting to tldraw user preferences.
- */
-export function applyTheme(editor: Editor, theme: 'dark' | 'light'): void {
-  const isDark = editor.user.getIsDarkMode();
-  if (theme === 'dark' && !isDark) {
-    editor.user.updateUserPreferences({ colorScheme: 'dark' });
-  } else if (theme === 'light' && isDark) {
-    editor.user.updateUserPreferences({ colorScheme: 'light' });
-  }
-}
