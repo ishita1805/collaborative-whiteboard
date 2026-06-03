@@ -1,9 +1,26 @@
 {
-  "name": "realtimekit-whiteboard-plugin",
-  "main": "src/worker.ts",
+  "name": "whiteboard",
+  "main": "src/server/worker.ts",
   "compatibility_date": "2025-01-01",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "AUTH_DO",
+        "class_name": "AuthDurableObject"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["AuthDurableObject"]
+    }
+  ],
+  "vars": {
+    "COLLABKIT_SERVER_URL": "https://collab-kit-server.ishitakabra18.workers.dev"
   }
 }

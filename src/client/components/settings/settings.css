@@ -1,0 +1,31 @@
+.settings-container {
+    @apply flex flex-row items-center justify-center text-xs p-1.5 box-border;
+}
+
+.settings-container-dark {
+    @apply flex flex-row items-center justify-center text-xs p-1 box-border;
+} 
+.settings-icon {
+    @apply  text-black cursor-pointer !h-7 !w-7 ;
+}
+.settings-icon-dark {
+    @apply  text-white cursor-pointer !h-7 !w-7 ;
+}
+.loading {
+    @apply text-gray-400;
+}
+
+.success {
+    @apply text-green-500;
+}
+
+.active {
+    @apply text-blue-500;
+}
+
+#TD-MultiplayerMenuIcon {
+    @apply hidden;
+}
+.align-row {
+    @apply flex flex-row items-center;
+}

@@ -1,0 +1,36 @@
+.pagination {
+    @apply flex flex-col cursor-pointer;
+}
+.pagination-dark {
+    @apply flex flex-col cursor-pointer text-white;
+}
+.pagination-header {
+    @apply flex flex-row items-center justify-between min-w-[70px];
+}
+.pagination-icon {
+    @apply h-6 w-6;
+}
+.pagination-dropdown {
+    @apply absolute left-0 top-11 rounded-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] bg-white mt-2;
+    max-height: 80vh;
+    overflow-y: auto;
+    min-width: fit-content;
+}
+.pagination-dropdown-dark {
+    @apply absolute left-0 top-11 rounded-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-white bg-black mt-2;
+    max-height: 80vh;
+    overflow-y: auto;
+    min-width: fit-content;
+}
+.pagination-element {
+    @apply flex flex-row items-center justify-between px-2 h-10;
+}
+.pagination-create {
+    @apply flex flex-row items-center justify-between p-1 border-solid border-gray-300 border-0 border-t-[1px] h-10;
+}
+.pagination-create-dark {
+    @apply flex flex-row items-center justify-between p-1 border-solid border-gray-600 border-0 border-t-[1px] h-10;
+}
+.page-label {
+    @apply flex-grow;
+}
