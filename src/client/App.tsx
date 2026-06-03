@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import CollabKitClient from "@collab-kit/client";
 
 import { useWhiteboard } from "./context";
@@ -12,10 +12,7 @@ import logoWhite from "./assets/logo-white.png";
 type CollabKitClientType = any;
 
 const App = () => {
-  const { config, setError } = useWhiteboard();
-  const [status, setStatus] = useState<"connecting" | "ready" | "error">(
-    "connecting",
-  );
+  const { config, status, setStatus, setError } = useWhiteboard();
   const collabkitRef = useRef<CollabKitClientType>(null);
   const connectingRef = useRef(false);
 
